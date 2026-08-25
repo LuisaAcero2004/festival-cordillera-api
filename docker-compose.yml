@@ -1,0 +1,47 @@
+services:
+  festival-cordillera-api:
+    build: .
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+    depends_on:
+      mariadb:
+        condition: service_healthy
+  mariadb:
+    image: mariadb:latest
+    container_name: mariadb-service
+    environment:
+      MARIADB_USER: ${DB_USERNAME}
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${DB_PASSWORD_ROOT}
+      MARIADB_DATABASE: ${DATABASE_NAME}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "healthcheck.sh",
+          "--connect",
+          "--innodb_initialized"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: phpmyadmin-service
+    environment:
+      PMA_HOST: mariadb
+      PMA_PORT: 3306
+    ports:
+      - "8090:80"
+    depends_on:
+      - mariadb
+
+volumes:
+  mariadb_data:
