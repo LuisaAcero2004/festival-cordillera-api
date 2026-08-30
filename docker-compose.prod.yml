@@ -1,12 +1,15 @@
 services:
 
   festival-cordillera-api:
-    image: ghcr.io/tu-usuario/festival-cordillera:${APP_VERSION}
+    build: .
     env_file:
       - .env
     restart: unless-stopped
     ports:
       - "8080:8080"
+    depends_on:
+      mariadb:
+        condition: service_healthy
 
   mariadb:
     image: mariadb:11.8
@@ -26,6 +29,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+      start_period: 10s
 
 volumes:
   mariadb_data:
