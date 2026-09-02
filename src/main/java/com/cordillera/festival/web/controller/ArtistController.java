@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -33,7 +34,8 @@ public class ArtistController {
     }
 
     @GetMapping
-    @Operation(summary = "Get the list of artists", description = "Get all the artists or filter by name, genre o country")
+    @Operation(summary = "Get the list of artists",
+            description = "Get all the artists or filter by name, genre o country")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved list of artists")
     public ResponseEntity<List<Artist>> getAll(
             @Parameter(description = "Filter by artist name") @RequestParam(required = false) String name,
@@ -56,20 +58,24 @@ public class ArtistController {
     }
 
     @GetMapping("/{id}")
-    @Operation(description = "Get artist by id", summary = "Returns details for a specific artist by their UUID")
+    @Operation(description = "Get artist by id",
+            summary = "Returns details for a specific artist by their UUID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Artist found"),
             @ApiResponse(responseCode = "404", description = "Artist not found",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public ResponseEntity<Artist> getById(@Parameter(description = "Artist UUID", required = true) @PathVariable("id") UUID id){
+    public ResponseEntity<Artist> getById(@Parameter(description = "Artist UUID", required = true)
+                                              @PathVariable("id") UUID id){
         return artistService.getById(id)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new ResourceNotFoundException(ARTIST_NOT_FOUND.format(id)));
     }
 
     @PostMapping
-    @Operation(summary = "Create a new artist", description = "Registers a new artist in the festival database.")
+    @Operation(summary = "Create a new artist",
+            description = "Registers a new artist in the festival database.",
+            security = @SecurityRequirement(name = "basicAuth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Artist created successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid payload provided",
@@ -80,7 +86,9 @@ public class ArtistController {
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Update an existing artist", description = "Update an existing artist in the festival database.")
+    @Operation(summary = "Update an existing artist",
+            description = "Update an existing artist in the festival database.",
+            security = @SecurityRequirement(name = "basicAuth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Artist created successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid payload provided",
@@ -89,7 +97,8 @@ public class ArtistController {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public ResponseEntity<Artist> update(@Valid @RequestBody Artist artist,
-                                         @Parameter(description = "Artist UUID", required = true) @PathVariable("id") UUID id){
+                                         @Parameter(description = "Artist UUID", required = true)
+                                         @PathVariable("id") UUID id){
         artist.setId(id);
         return artistService.update(artist)
                 .map(ResponseEntity::ok)
@@ -97,13 +106,16 @@ public class ArtistController {
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Delete an existing artist", description = "Delete an existing artist in the festival database.")
+    @Operation(summary = "Delete an existing artist",
+            description = "Delete an existing artist in the festival database.",
+            security = @SecurityRequirement(name = "basicAuth"))
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Artist created successfully"),
+            @ApiResponse(responseCode = "204", description = "Artist deleted successfully"),
             @ApiResponse(responseCode = "404", description = "Artist not found",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public ResponseEntity<Void> delete(@Parameter(description = "Artist UUID", required = true) @PathVariable("id")UUID id){
+    public ResponseEntity<Void> delete(@Parameter(description = "Artist UUID", required = true)
+                                           @PathVariable("id")UUID id){
         Boolean deleted = artistService.delete(id);
         if(!deleted){
             throw new ResourceNotFoundException(ARTIST_NOT_FOUND.format(id));

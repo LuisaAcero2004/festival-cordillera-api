@@ -22,7 +22,6 @@ public class OpenApiConfig {
                 .info(new Info()
                         .title("Festival Cordillera API")
                         .version("1.0.0")
-                        .description("REST API for managing Festival Cordillera artists, stages, and shows"))
-                .addSecurityItem(new SecurityRequirement().addList("basicAuth"));
+                        .description("REST API for managing Festival Cordillera artists, stages, and shows"));
     }
 }

@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
 
 @Schema(description = "Shows that will be part of the festival")
@@ -23,12 +23,12 @@ public class ShowArtistStage {
     private Stage stage;
 
     @NotNull
-    @Schema(description = "Show start datetime", example = "", requiredMode = Schema.RequiredMode.REQUIRED)
-    private LocalDateTime startDatetime;
+    @Schema(description = "Show start datetime", example = "2026-09-12T18:30:00-05:00", requiredMode = Schema.RequiredMode.REQUIRED)
+    private OffsetDateTime startDatetime;
 
     @NotNull
-    @Schema(description = "Show end datetime", example = "", requiredMode = Schema.RequiredMode.REQUIRED)
-    private LocalDateTime endDatetime;
+    @Schema(description = "Show end datetime", example = "2026-09-12T18:30:00-05:00", requiredMode = Schema.RequiredMode.REQUIRED)
+    private OffsetDateTime endDatetime;
 
     public Long getId() {
         return id;
@@ -54,28 +54,32 @@ public class ShowArtistStage {
         this.stage = stage;
     }
 
-    public LocalDateTime getStartDatetime() {
+    public OffsetDateTime getStartDatetime() {
         return startDatetime;
     }
 
-    public void setStartDatetime(LocalDateTime startDatetime) {
+    public void setStartDatetime(OffsetDateTime startDatetime) {
         this.startDatetime = startDatetime;
     }
 
-    public LocalDateTime getEndDatetime() {
+    public OffsetDateTime getEndDatetime() {
         return endDatetime;
     }
 
-    public void setEndDatetime(LocalDateTime endDatetime) {
+    public void setEndDatetime(OffsetDateTime endDatetime) {
         this.endDatetime = endDatetime;
     }
 
-    public Boolean getLive() {
-        LocalDateTime currentDatetime = LocalDateTime.now(ZoneId.of("America/Bogota"));
+    public boolean getLive() {
         if (startDatetime == null || endDatetime == null) {
             return false;
         }
-        return !currentDatetime.isBefore(startDatetime) && !currentDatetime.isAfter(endDatetime);
+
+        OffsetDateTime now =
+                OffsetDateTime.now(ZoneId.of("America/Bogota"));
+
+        return !now.isBefore(startDatetime)
+                && !now.isAfter(endDatetime);
     }
 
 }

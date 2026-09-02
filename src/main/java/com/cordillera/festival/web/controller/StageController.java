@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -33,37 +34,49 @@ public class StageController {
     }
 
     @GetMapping("/active")
-    @Operation(summary = "Get the list of active stages", description = "Get stages filtered by active=true")
-    @ApiResponse(responseCode = "200", description = "Successfully retrieved list of active stages")
+    @Operation(summary = "Get the list of active stages",
+            description = "Get stages filtered by active=true")
+    @ApiResponse(responseCode = "200",
+            description = "Successfully retrieved list of active stages")
     public ResponseEntity<List<Stage>> getActive(){
         return ResponseEntity.ok(stageService.getActive());
     }
 
     @GetMapping
-    @Operation(summary = "Get the list of stages", description = "Get all the stages")
-    @ApiResponse(responseCode = "200", description = "Successfully retrieved list of all stages")
+    @Operation(summary = "Get the list of stages",
+            description = "Get all the stages")
+    @ApiResponse(responseCode = "200",
+            description = "Successfully retrieved list of all stages")
     public ResponseEntity<List<Stage>> getAll(){
         return ResponseEntity.ok(stageService.getAll());
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Get stage by id", description = "Returns details for a specific stage by their UUID")
+    @Operation(summary = "Get stage by id",
+            description = "Returns details for a specific stage by their UUID")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully retrieved the stage by given id"),
-            @ApiResponse(responseCode = "404", description = "Stage not found by given id",
+            @ApiResponse(responseCode = "200",
+                    description = "Successfully retrieved the stage by given id"),
+            @ApiResponse(responseCode = "404",
+                    description = "Stage not found by given id",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public ResponseEntity<Stage> getById(@Parameter(description = "Stage UUID",required = true) @PathVariable("id") UUID id){
+    public ResponseEntity<Stage> getById(@Parameter(description = "Stage UUID",required = true)
+                                             @PathVariable("id") UUID id){
         return stageService.getById(id)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new ResourceNotFoundException(STAGE_NOT_FOUND.format(id)));
     }
 
     @PostMapping
-    @Operation(summary = "Create a new stage", description = "Registers a new stage in the festival database")
+    @Operation(summary = "Create a new stage",
+            description = "Registers a new stage in the festival database",
+            security = @SecurityRequirement(name = "basicAuth"))
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Stage successfully created"),
-            @ApiResponse(responseCode = "400", description = "Invalid payload provided",
+            @ApiResponse(responseCode = "201",
+                    description = "Stage successfully created"),
+            @ApiResponse(responseCode = "400",
+                    description = "Invalid payload provided",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public ResponseEntity<Stage> create(@Valid @RequestBody Stage stage){
@@ -71,12 +84,17 @@ public class StageController {
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Update an existing stage", description = "Update an existing stage in the festival database")
+    @Operation(summary = "Update an existing stage",
+            description = "Update an existing stage in the festival database",
+            security = @SecurityRequirement(name = "basicAuth"))
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully updated the stage by given id"),
-            @ApiResponse(responseCode = "400", description = "Invalid payload provided",
+            @ApiResponse(responseCode = "200",
+                    description = "Successfully updated the stage by given id"),
+            @ApiResponse(responseCode = "400",
+                    description = "Invalid payload provided",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "404", description = "Stage not found by given id"
+            @ApiResponse(responseCode = "404",
+                    description = "Stage not found by given id"
                     , content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     public ResponseEntity<Stage> update(@Valid @RequestBody Stage stage,
@@ -88,13 +106,18 @@ public class StageController {
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Delete existing stage by id", description = "Delete existing stage in the festival database")
+    @Operation(summary = "Delete existing stage by id",
+            description = "Delete existing stage in the festival database",
+            security = @SecurityRequirement(name = "basicAuth"))
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204",description = "Successfully deleted a stage"),
-            @ApiResponse(responseCode = "404", description = "Stage not found by given id"
+            @ApiResponse(responseCode = "204",
+                    description = "Successfully deleted a stage"),
+            @ApiResponse(responseCode = "404",
+                    description = "Stage not found by given id"
                     , content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public ResponseEntity<Void> delete(@Parameter(description = "Stage UUID", required = true) @PathVariable("id") UUID id){
+    public ResponseEntity<Void> delete(@Parameter(description = "Stage UUID", required = true)
+                                           @PathVariable("id") UUID id){
         Boolean deleted = stageService.delete(id);
         if(!deleted){
                 throw new ResourceNotFoundException(STAGE_NOT_FOUND.format(id));
